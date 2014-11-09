@@ -1,0 +1,212 @@
+[
+  {
+    "ids": {
+      "baseball-reference": "ARI"
+    },
+    "name": "Arizona Diamondbacks",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "ATL"
+    },
+    "name": "Atlanta Braves",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "BAL"
+    },
+    "name": "Baltimore Orioles",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "BOS"
+    },
+    "name": "Boston Red Sox",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "CHC"
+    },
+    "name": "Chicago Cubs",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "CHW"
+    },
+    "name": "Chicago White Sox",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "CIN"
+    },
+    "name": "Cincinnati Reds",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "CLE"
+    },
+    "name": "Cleveland Indians",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "COL"
+    },
+    "name": "Colorado Rockies",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "DET"
+    },
+    "name": "Detroit Tigers",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "HOU"
+    },
+    "name": "Houston Astros",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "KCR"
+    },
+    "name": "Kansas City Royals",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "LAA"
+    },
+    "name": "Los Angeles Angels of Anaheim",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "LAD"
+    },
+    "name": "Los Angeles Dodgers",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "MIA"
+    },
+    "name": "Miami Marlins",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "MIL"
+    },
+    "name": "Milwaukee Brewers",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "MIN"
+    },
+    "name": "Minnesota Twins",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "NYM"
+    },
+    "name": "New York Mets",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "NYY"
+    },
+    "name": "New York Yankees",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "OAK"
+    },
+    "name": "Oakland Athletics",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "PHI"
+    },
+    "name": "Philadelphia Phillies",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "PIT"
+    },
+    "name": "Pittsburgh Pirates",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "SDP"
+    },
+    "name": "San Diego Padres",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "SFG"
+    },
+    "name": "San Francisco Giants",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "SEA"
+    },
+    "name": "Seattle Mariners",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "STL"
+    },
+    "name": "St. Louis Cardinals",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "TBR"
+    },
+    "name": "Tampa Bay Rays",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "TEX"
+    },
+    "name": "Texas Rangers",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "TOR"
+    },
+    "name": "Toronto Blue Jays",
+    "twitter": ""
+  },
+  {
+    "ids": {
+      "baseball-reference": "WSN"
+    },
+    "name": "Washington Nationals",
+    "twitter": ""
+  }
+]
