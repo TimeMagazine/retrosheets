@@ -1,145 +1,45 @@
-var DATA_URL = "http://www.retrosheet.org/gamelogs/gl$year.zip",
-	FILENAME = "data/GL$year.TXT";
-
-var AdmZip = require("adm-zip"),
+var get_data = require("./lib/get_data"),
+	parse_game_log = require("./lib/parse_game_log"),
 	fs = require("fs"),
-	mkdirp = require("mkdirp"),
-	log = require("npmlog"),
-	http = require("http"),
-	csv = require('fast-csv'),
-	moment = require("moment");
+	moment = require("moment"),
+	events = require("./lib/events");
 
-function downloadZipfile(url, filename, callback) {
-	// download zip file of data
-	if (fs.existsSync(filename)) {
-		log.info("Already have " + filename + " downloaded. Unzipping to ./data");
-		unzip();
-		return;
-	}
+var args = require('minimist')(process.argv.slice(2)),
+	db;
 
-	log.info("Downloading " + filename + " from " + url);
+function download(args, callback) {
+	var year = args.year,
+		start = args.start || year,
+		end = args.end || year,
+		type = args.type || "game_log";
 
-	var f = fs.createWriteStream(filename);
-
-	f.on('finish', function() {
-        // unzip
-		log.info("Finished downloading. Unzipping to ./data");
-		unzip();
-    });
-
-	var request = http.get(url, function(response) {
-		response.pipe(f);
-	});
-
-	function unzip() {
-		var zip = new AdmZip(filename);
-		zip.extractAllTo("./data");
-
-		//fs.unlink(filename, function() {
-		log.info("Finished unzipping. Deleted");
-		if (callback) {
-			callback();
-		}		
-		//});
+	for (var y = start; y <= end; y += 1) {
+		get_data(y, type, callback);
 	}
 }
 
-function getYear(year, callback) {
-	mkdirp("/data", function() {
-		downloadZipfile(DATA_URL.replace("$year", year), "cache/" + year + ".zip", function() {
-			var games = [];
-			csv.fromPath(FILENAME.replace("$year", year))
-				.on("record", function(data){
-					callback(data);
-				});
-		});
-	});
-}
 
-function parseYear(db, year) {
-	if (year.replace(/\d+/, "") != "") {
-		var collection = db.collection("postseason");
-	} else {
-		var collection = db.collection("season");
+function add_games(args, db) {
+	var year = args.year,
+		start = args.start || year,
+		end = args.end || year;
+
+	var collection = db.collection("games"),
+		count = 0;
+
+	for (var y = start; y <= end; y += 1) {
+		download(args, function(data) {
+			count += 1;
+			var game = parse_game_log(data);
+			collection.insert(game, function() {
+				count -= 1;
+				console.log(count);
+			});
+		})
 	}
-
-	getYear(year, function(data) {
-		var game = {};
-		game.date = moment(data[0], "YYYYMMDD")._d;
-		game.visitor = {
-			team: data[3],
-			league: data[4],
-			game: parseInt(data[5]),
-			runs: parseInt(data[9], 10),
-			box: data[19],
-			offense: {},
-			defense: {},
-			pitching: {}
-		};
-
-		game.hometeam = {
-			team: data[6],
-			league: data[7],
-			game: data[8],
-			runs: parseInt(data[10], 10),
-			box: data[20],
-			offense: {},
-			defense: {},
-			pitching: {}
-		};
-
-		game.info = {
-			outs: parseInt(data[11], 10),
-			day_or_night: data[12],
-			completion: data[13],
-			forfeit: data[14],
-			protest: data[15],
-			park: data[16],
-			attendance: parseInt(data[17]),
-			time: parseInt(data[18]),
-			notes: data[159],
-			retrosheets: data[160]
-		};
-
-		var offense = ["at_bats", "hits", "doubles", "triples", "homeruns", "RBI", "sacrifices", "sacrifices_since_1954", "hit_by_pitch", "walks", "intentional_walks", "strikeouts", "stolen_bases", "caught_stealing", "GIDP", "catcher_interference", "left_on_base"];
-
-		offense.forEach(function(stat, s) {
-			game.visitor.offense[stat] = parseInt(data[s+21], 10);
-			game.hometeam.offense[stat] = parseInt(data[s+49], 10);
-		});
-
-		var pitching = ["pitchers_used", "individual_earned_runs", "team_earned_runs", "wild_pitches", "balks"];
-
-		pitching.forEach(function(stat, s) {
-			game.visitor.pitching[stat] = parseInt(data[s+38], 10);
-			game.hometeam.pitching[stat] = parseInt(data[s+66], 10);
-		});
-
-		var defense = ["putouts", "assists", "errors", "passed_balls", "double_plays", "triple_plays"];
-
-		defense.forEach(function(stat, s) {
-			game.visitor.defense[stat] = parseInt(data[s+43], 10);
-			game.hometeam.defense[stat] = parseInt(data[s+71], 10);
-		});		
-
-		game._id = game.hometeam.team + "_" + game.hometeam.league + "_" + game.hometeam.game + "_" + data[0];
-
-		// additional stats
-		if (game.hometeam.runs > game.visitor.runs) {
-			game.winner = game.hometeam.team;
-		} else if (game.visitor.runs > game.hometeam.runs) {
-			game.winner = game.visitor.team;
-		} else {
-			game.winner = null;
-		}
-
-		collection.insert(game, function() {
-
-		});
-	});
 }
 
-function getSeasons(db, opts) {
+function get_seasons(args) {
 	var collection = db.collection(opts.postseason ? "postseason" : "season"),
 		years = {},
 		filename = opts.postseason ? "postseason" : "regular";
@@ -150,7 +50,6 @@ function getSeasons(db, opts) {
 	} catch(e) {
 		postseason = null;
 	}
-	console.log(postseason);
 
 	collection.find({ winner: { $ne: null }}).toArray(function(err, games) {
 		games.forEach(function(game) {
@@ -177,7 +76,7 @@ function getSeasons(db, opts) {
 		seasons.forEach(function(c) {
 			years[c].forEach(function(team) {
 				count += 1;
-				getRecord(db, { team: team, year: c }, function(rec) {
+				get_record(db, { team: team, year: c }, function(rec) {
 					data[team + "_" + c] = {
 						record: rec
 					};
@@ -197,20 +96,20 @@ function getSeasons(db, opts) {
 	});
 }
 
-function parseRegularSeason(db) {
+function parse_regular_season(db) {
 	for (var c = 1996; c <= 2013; c += 1) {
-		parseYear(db, String(c))
+		parse_year(db, String(c))
 	}
 }
 
-function parsePostSeason(db) {
-	parseYear(db, "lc");
-	parseYear(db, "dv");
-	parseYear(db, "ws");
+function parse_postseason(db) {
+	parse_year(db, "lc");
+	parse_year(db, "dv");
+	parse_year(db, "ws");
 }
 
 
-function getRecord(db, opts, callback) {
+function get_record(db, opts, callback) {
 	var collection = db.collection("season"),
 		year = parseInt(opts.year),
 		team = opts.team,
@@ -227,35 +126,56 @@ function getRecord(db, opts, callback) {
 			callback(records);
 		}
 	});
-
 }
 
-var argv = require('optimist').argv;
+function get_events(db, args) {
+	var collection = db.collection("events");
+	var count = 0;
+
+	function callback(game) {
+		game._id = game.id;
+		collection.insert(game, function(err, doc) {
+			count += 1;
+			//console.log(count);
+		});
+	}
+
+	if (args.team && args.year) {
+		events.by_team_and_year(args.team, args.year, callback);
+	} else if (args.start && args.end) {
+		var year = args.start - 1;
+		var done = function() {
+			year += 1;
+			if (year <= args.end) {
+				console.log("Starting", year);
+				events.by_year(year, callback, done);
+			}
+		}
+
+		done();
+	} else {
+		//events.by_year(args.year, callback);		
+	}
+}
 
 var commands = {
-	parse: parseYear,
-	season: parseRegularSeason,
-	postseason: parsePostSeason,
-	write: getSeasons,
-	record: getRecord
+	download: download,
+	events: get_events,
+	add_games: add_games,
+	season: parse_regular_season,
+	postseason: parse_postseason,
+	write: get_seasons,
+	record: get_record
 }
-
-
 
 var MongoClient = require('mongodb').MongoClient;
 
 // Connect to the db
 MongoClient.connect("mongodb://localhost:27017/baseball", function(err, db) {
-	if(!err) {		
-		log.info("connected");
-		commands[argv._[0]](db, argv);
+	if(!err) {
+		console.log("connected to MongoDB");
+		commands[args._[0]](args, db);
 	} else {
-		log.error(err);
+		console.log(err);
 	}
 });
-
-/*
-getYear("2013", function(data) {
-	console.log(data.length);
-});
-*/
