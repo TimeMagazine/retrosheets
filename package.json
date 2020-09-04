@@ -27,7 +27,7 @@
     "minimist": "^1.1.1",
     "mkdirp": "^0.5.0",
     "moment": "^2.9.0",
-    "mongodb": "^1.4.34",
+    "mongodb": "^3.6.1",
     "npmlog": "^1.2.0"
   },
   "devDependencies": {}
